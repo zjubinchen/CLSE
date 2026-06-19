@@ -5,16 +5,20 @@
 
 <h4 align="center">
 
-[Zichen Wen](https://scholar.google.com/citations?user=N-aPFvEAAAAJ&hl=zh-CN)<sup>1,2</sup>,
-[Yifeng Gao]()<sup>1</sup>,
-[Shaobo Wang](https://gszfwsb.github.io/)<sup>1</sup>,
-[Junyuan Zhang](https://scholar.google.com/citations?user=uwwqEg8AAAAJ&hl=en)<sup>2</sup>,
-[Qintong Zhang]()<sup>2,4</sup>, <br>
-[Weijia Li](https://liweijia.github.io/)<sup>3,2</sup>,
-[Conghui He](https://conghui.github.io/)<sup>2✉</sup>,
-[Linfeng Zhang](http://www.zhanglinfeng.tech/)<sup>1✉</sup>
+[Bin Chen](https://zjubinchen.github.io/)<sup>1,2</sup>,
+[Yuxiang Cai](https://yuxiangcai.github.io/)<sup>1,2*</sup>,
+[Yadan Luo](https://scholar.google.com/citations?user=0CIcN0cAAAAJ&hl=en)<sup>3</sup>,
+[Yi Zhang]()<sup>4</sup>, <br>
+[Jianwei Yin]()<sup>1,2</sup>,
+[Zhi Chen]()<sup>5✉</sup>
 
-<sup>1</sup> Shanghai Jiao Tong University &nbsp; <sup>2</sup> Shanghai AI Laboratory &nbsp; <sup>3</sup> Sun Yat-sen University &nbsp; <sup>4</sup> Peking University
+<sup>1</sup> School of Software Technology, Zhejiang University, Ningbo, China &nbsp;
+<sup>2</sup> Zhejiang Key Laboratory of Digital-Intelligence Service Technology, China &nbsp;
+<sup>3</sup> The University of Queensland, St Lucia, QLD, Australia &nbsp;
+<sup>4</sup> Singapore Management University, Singapore &nbsp;
+<sup>5</sup> The University of Southern Queensland, Toowoomba, QLD, Australia
+
+<small>* Corresponding Authors: Yuxiang Cai, Zhi Chen</small>
 
 </h4>
 
@@ -32,7 +36,7 @@
 
 ## 👀 Overview
 <p align='center'>
-<img src='images/overview.png' alt='CLSE Overview' width='1000px'>
+<img src='images/overview.pdf' alt='CLSE Overview' width='1000px'>
 </p>
 
 > **TL;DR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
@@ -213,9 +217,9 @@ This project is released under the [Apache 2.0 license](LICENSE).
 If you find CLSE helpful for your research, please consider citing:
 
 ```bibtex
-@inproceedings{wen2026clse,
+@inproceedings{chen2026clse,
   title={Spectral Evolution-Guided Token Pruning in Multimodal Large Language Models},
-  author={Wen, Zichen and Gao, Yifeng and Wang, Shaobo and Zhang, Junyuan and Zhang, Qintong and Li, Weijia and He, Conghui and Zhang, Linfeng},
+  author={Chen, Bin and Cai, Yuxiang and Luo, Yadan and Zhang, Yi and Yin, Jianwei and Chen, Zhi},
   booktitle={European Conference on Computer Vision (ECCV)},
   year={2026}
 }
@@ -227,4 +231,4 @@ We extend our gratitude to the open-source efforts of [LLaVA](https://github.com
 
 ## 📩 Contact
 
-For questions about the paper or code, please email `zichen.wen@outlook.com` or open an issue on GitHub.
+For questions about the paper or code, please email `caiyuxiang@zju.edu.cn` or `zhi.chen@unisq.edu.au`, or open an issue on GitHub.
