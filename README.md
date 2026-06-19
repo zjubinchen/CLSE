@@ -1,0 +1,232 @@
+<div align="center">
+  <h1>CLSE: Cross-Layer Spectral Evolution for Token Pruning<br>in Multimodal Large Language Models</h1>
+  <h3>🔥 Accepted at ECCV 2026</h3>
+</div>
+
+<h4 align="center">
+
+[Zichen Wen](https://scholar.google.com/citations?user=N-aPFvEAAAAJ&hl=zh-CN)<sup>1,2</sup>,
+[Yifeng Gao]()<sup>1</sup>,
+[Shaobo Wang](https://gszfwsb.github.io/)<sup>1</sup>,
+[Junyuan Zhang](https://scholar.google.com/citations?user=uwwqEg8AAAAJ&hl=en)<sup>2</sup>,
+[Qintong Zhang]()<sup>2,4</sup>, <br>
+[Weijia Li](https://liweijia.github.io/)<sup>3,2</sup>,
+[Conghui He](https://conghui.github.io/)<sup>2✉</sup>,
+[Linfeng Zhang](http://www.zhanglinfeng.tech/)<sup>1✉</sup>
+
+<sup>1</sup> Shanghai Jiao Tong University &nbsp; <sup>2</sup> Shanghai AI Laboratory &nbsp; <sup>3</sup> Sun Yat-sen University &nbsp; <sup>4</sup> Peking University
+
+</h4>
+
+<div align="center">
+
+[![ECCV 2026](https://img.shields.io/badge/ECCV-2026-blue.svg)]()
+[![arXiv](https://img.shields.io/badge/Arxiv-coming_soon-AD1C18.svg?logo=arXiv)]()
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/zjubinchen/CLSE?style=social)](https://github.com/zjubinchen/CLSE/stargazers)
+</div>
+
+## 🔥 News
+* **`2026.06.19`** 🎉🎉 CLSE is accepted at **ECCV 2026**! Code and models are now available!
+* **`2025.10.13`** 🤗 We have released our latest work [EPIC](https://zichenwen1.github.io/EPIC/), an efficient framework for progressive consistency distillation in multimodal large language models!
+* **`2025.10.10`** 🤗 We've released our latest work, [VTC-Bench](https://arxiv.org/pdf/2510.07143). Come test whether your token compression method really works!
+* **`2025.08.21`** 🤗 Our [DART](https://arxiv.org/pdf/2502.11494) is accepted at EMNLP'25 main!
+
+## 👀 Overview
+<p align='center'>
+<img src='images/overview.png' alt='CLSE Overview' width='1000px'>
+</p>
+
+> **TL;DR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
+
+### 🔬 What is CLSE?
+
+Existing token pruning methods rely on **single-layer signals** (attention scores, feature magnitudes, or token similarities), which:
+- Overlook the **cross-layer transformation** of visual representations
+- Exhibit **positional bias** in multimodal token sequences
+
+CLSE addresses these limitations by measuring token importance through **cross-layer spectral evolution**:
+1. **Frequency-domain projection** — Transform visual tokens into the frequency domain and apply a Gaussian high-pass filter to isolate structural information
+2. **Cross-layer evolution quantification** — Measure how each token's spectral profile evolves between adjacent layers, capturing the transition from high-frequency details to low-frequency semantic abstractions
+3. **Top-K preservation** — Retain tokens with the strongest spectral redistribution, as they contribute most meaningfully to multimodal reasoning
+
+### 🎯 Key Features
+
+- **Training-free & Plug-and-Play** — No fine-tuning required; seamlessly integrates with existing MLLMs
+- **Positional Bias Mitigation** — Spectral evolution provides a more reliable importance signal than attention scores
+- **Multi-Architecture Support** — Compatible with LLaVA-1.5, LLaVA-Next, Qwen2-VL, and Video-LLaVA
+- **Token Merging Compatible** — Orthogonal to token merging methods; can be combined for further gains (e.g., CLSE-M for video)
+- **Early-Layer Pruning** — Prunes at layer 1 of the LLM decoder, maximizing prefill speedups
+
+## 📦 Supported Models
+
+| Model | Code Directory | Token Budget | Pruning Ratio |
+|---|---|---|---|
+| LLaVA-1.5-7B / 13B | [`LLaVA1.5/`](LLaVA1.5/) | 192 / 128 / 64 | 66.7%–88.9% |
+| LLaVA-Next-7B | [`LLaVA1.5/`](LLaVA1.5/) | 320 | 88.9% |
+| Qwen2-VL-7B / 72B | [`Qwen2VL/`](Qwen2VL/) | Adaptive | 66.7%–88.9% |
+| Video-LLaVA-7B | [`Video-LLaVA/`](Video-LLaVA/) | 194 | >90% |
+
+## 🛠 Installation
+
+### LLaVA-1.5 & LLaVA-Next
+
+```bash
+git clone https://github.com/zjubinchen/CLSE
+cd CLSE/LLaVA1.5
+
+conda create -n clse python=3.10 -y
+conda activate clse
+pip install -e .
+pip install flash-attn --no-build-isolation
+```
+
+### Qwen2-VL
+
+```bash
+cd CLSE/Qwen2VL
+conda create -n clse_qwen python=3.10 -y
+conda activate clse_qwen
+pip install -e .
+pip install accelerate qwen-vl-utils[decord]
+pip install flash-attn --no-build-isolation
+cd ../lmms-eval && pip install -e .
+```
+
+### Video-LLaVA
+
+```bash
+cd CLSE/Video-LLaVA
+conda create -n clse_video python=3.10 -y
+conda activate clse_video
+pip install -e .
+pip install flash-attn --no-build-isolation
+```
+
+## 🎯 Usage
+
+### LLaVA-1.5
+
+```bash
+cd LLaVA1.5
+# Evaluate with CLSE token pruning (e.g., retain 192 tokens, ↓66.7%)
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/textvqa.sh  192
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/pope.sh     192
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mme.sh      192
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/gqa.sh      192
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mmb.sh      192
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/sqa.sh      192
+```
+
+**Key Configuration** — CLSE hyperparameters are set in the model config or passed directly:
+
+| Parameter | Description | Default |
+|---|---|---|
+| `keep_tokens` | Number of visual tokens to retain | `192` |
+| `score_type` | Scoring method: `"clse"`, `"attn"`, or `"clse_attn"` | `"clse"` |
+| `cutoff` | Gaussian high-pass cutoff ratio | `0.1` |
+| `temp` | Temperature for evolution intensity normalization | `0.1` |
+
+### Qwen2-VL
+
+```bash
+cd Qwen2VL
+# Enable CLSE pruning with a target reduction ratio
+bash eval_scripts/lmms_eval.sh True [Reduction_Ratio]
+```
+
+### Video-LLaVA
+
+```bash
+cd Video-LLaVA
+# Evaluate with CLSE token pruning (video)
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/activitynet.sh  194
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msvd.sh         194
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msrvtt.sh       194
+CUDA_VISIBLE_DEVICES=0 bash scripts/eval/tgif.sh         194
+```
+
+## 📊 Key Results
+
+### Image Benchmarks (LLaVA-1.5-7B)
+
+| Method | Venue | 192 Tokens (↓66.7%) | 128 Tokens (↓77.8%) | 64 Tokens (↓88.9%) |
+|---|---|---|---|---|
+| FastV | ECCV'24 | 92.1% | 87.2% | 78.0% |
+| PDrop | CVPR'25 | 96.9% | 95.3% | 77.0% |
+| SparseVLM | ICML'25 | 96.3% | 93.7% | 84.3% |
+| FiCoCo-V | AAAI'26 | 96.2% | 94.3% | 89.8% |
+| **CLSE (Ours)** | **ECCV'26** | **99.4%** | **98.1%** | **94.8%** |
+
+*Performance relative to the vanilla model (576 tokens, 100%). Averaged over GQA, MMB, MMB-CN, MME, POPE, SQA, VQAText, VizWiz, and OCRBench.*
+
+### Video Benchmarks (Video-LLaVA-7B)
+
+CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods under **>90% token reduction**, matching or exceeding vanilla model performance when combined with token merging.
+
+### Efficiency Gains
+
+| | Prefill Time ↓ | FLOPs ↓ | KV Cache ↓ | Throughput ↑ |
+|---|---|---|---|---|
+| LLaVA-1.5 (192 tok) | **2.2× faster** | **3.0× lower** | **3.0× smaller** | **1.7× higher** |
+| Video-LLaVA (194 tok) | **10.6× faster** | **10.6× lower** | **10.6× smaller** | **8.3× higher** |
+
+## 📁 Repository Structure
+
+```
+CLSE/
+├── LLaVA1.5/              # CLSE integration for LLaVA-1.5 & LLaVA-Next
+│   ├── llava/model/language_model/
+│   │   ├── clse_model.py      # CLSELlamaModel with pruning logic
+│   │   ├── tools.py           # Spectral scoring utilities (FFT, evolution)
+│   │   └── llava_llama.py     # Modified to inherit CLSELlamaModel
+│   └── scripts/eval/          # Evaluation scripts
+├── Qwen2VL/               # CLSE integration for Qwen2-VL
+│   ├── modeling_qwen2_vl_clse.py  # CLSE-augmented Qwen2-VL model
+│   ├── tools.py                 # Spectral scoring utilities
+│   └── eval_scripts/            # Evaluation scripts
+├── Video-LLaVA/           # CLSE integration for Video-LLaVA
+│   ├── videollava/model/language_model/
+│   │   ├── clse_model.py      # CLSE model for video
+│   │   └── tools.py           # Video-compatible spectral scoring
+│   └── scripts/eval/          # Video evaluation scripts
+└── lmms-eval/             # Evaluation framework (modified for CLSE)
+```
+
+## 🧪 How CLSE Works
+
+<p align='center'>
+<img src='images/method.png' alt='CLSE Method' width='900px'>
+</p>
+
+1. **Reference Recording** — At layer ℓ, snapshot visual token features as reference
+2. **Spectral Scoring** — At layer ℓ+1, compute per-token high-frequency energy via 2D FFT with Gaussian high-pass filtering
+3. **Evolution Intensity** — Measure the normalized cross-layer spectral change: tokens that undergo meaningful structural-to-semantic transitions score higher
+4. **Pruning** — Select top-K tokens by evolution intensity and continue decoding with the pruned sequence
+
+Theoretical justification: selecting top-K tokens by CLSE **minimizes an upper bound** on the perturbation of subsequent decoder layers (see paper for proof).
+
+## 🔑 License
+
+This project is released under the [Apache 2.0 license](LICENSE).
+
+## 📌 Citation
+
+If you find CLSE helpful for your research, please consider citing:
+
+```bibtex
+@inproceedings{wen2026clse,
+  title={Spectral Evolution-Guided Token Pruning in Multimodal Large Language Models},
+  author={Wen, Zichen and Gao, Yifeng and Wang, Shaobo and Zhang, Junyuan and Zhang, Qintong and Li, Weijia and He, Conghui and Zhang, Linfeng},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2026}
+}
+```
+
+## 👍 Acknowledgment
+
+We extend our gratitude to the open-source efforts of [LLaVA](https://github.com/haotian-liu/LLaVA), [Qwen2-VL](https://github.com/QwenLM/Qwen2-VL), [Video-LLaVA](https://github.com/PKU-YuanGroup/Video-LLaVA), and [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval).
+
+## 📩 Contact
+
+For questions about the paper or code, please email `zichen.wen@outlook.com` or open an issue on GitHub.
