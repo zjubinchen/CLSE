@@ -1,7 +1,7 @@
 import torch
 
 
-def spatial_spectral_score_per_frame(x, t=8, h=16, w=16, cutoff_ratio=0.3):
+def spatial_spectral_score_per_frame(x, t=8, h=16, w=16, cutoff_ratio=0.1):
     """
     Compute per-token high-frequency spectral scores via per-frame 2D FFT.
 
@@ -126,7 +126,7 @@ def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(8, 1
     t, h, w = image_grid_thw
     score_L  = spatial_spectral_score_per_frame(z_L,  t, h, w, cutoff_ratio=cutoff)
     score_Lk = spatial_spectral_score_per_frame(z_Lk, t, h, w, cutoff_ratio=cutoff)
-    evo_factor = get_evolution_factor(score_L, score_Lk, temp=temp)
+    evo_factor = get_evolution_factor(score_L, score_Lk)
 
     if score_type == "clse_attn":
         return evo_factor * attn_score

@@ -72,8 +72,9 @@ def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(1, 2
         else:
             attn_score = attention_weights
 
-    if score_type == "attn":
+    if score_type == "attn" or image_grid_thw is None:
         return attn_score
+
 
     t, h, w = image_grid_thw
     score_L  = spatial_spectral_score_2d(z_L,  t, h, w, cutoff_ratio=cutoff)

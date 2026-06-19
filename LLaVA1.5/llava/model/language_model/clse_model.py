@@ -27,12 +27,12 @@ class CLSELlamaModel(LlamaModel):
         self.Z_L = None                  # reference features cached at each L in L_list
         self.cutoff = 0.1                # high-pass cutoff ratio for the Gaussian spectral filter
         self.temp = 0.1                  # temperature for sigmoid normalization of evolution intensity
-        self.prune = True                # whether to enable visual token pruning
-        self.keep_tokens = [192]         # number of visual tokens to retain at each pruning stage
-        self.L_list = [0]             # layer indices at which reference features are recorded
-        self.K_list = [1]                # layer indices at which pruning is applied
+        self.prune = False                # whether to enable visual token pruning
+        self.keep_tokens = [576,576,576]         # number of visual tokens to retain at each pruning stage
+        self.L_list = [0,10,20]             # layer indices at which reference features are recorded
+        self.K_list = [1,11,21]                # layer indices at which pruning is applied
         self.image_grid_thw = (1, 24, 24)  # visual grid shape (T, H, W); T=1 for image, T>1 for video
-        self.score_type = "clse"         # scoring method: "attn", "clse", or "clse_attn"
+        self.score_type = "clse_attn"         # scoring method: "attn", "clse", or "clse_attn"
 
     def forward(
         self,
@@ -132,6 +132,8 @@ class CLSELlamaModel(LlamaModel):
                     image_attention_score = None
 
                 # compute per-token importance score
+                self.image_grid_thw = (1,24,24) if current_layer_idx == self.K_list[0] else None
+                
                 evolution_score = calculate_evolution_score(
                     self.Z_L,
                     hidden_states[:, image_start:current_image_end, :],

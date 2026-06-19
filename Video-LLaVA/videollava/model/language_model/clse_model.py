@@ -28,9 +28,9 @@ class CLSELlamaModel(LlamaModel):
         self.temp = 0.1                  # temperature for sigmoid normalization of evolution intensity
         self.prune = True                # whether to enable visual token pruning
         self.keep_tokens = [194]         # number of visual tokens to retain at each pruning stage
-        self.L_list = [0]                # layer indices at which reference features are recorded
-        self.K_list = [1]                # layer indices at which pruning is applied
-        self.score_type = "clse"    # scoring method: "attn", "clse", or "clse_attn"
+        self.L_list = [2]                # layer indices at which reference features are recorded
+        self.K_list = [3]                # layer indices at which pruning is applied
+        self.score_type = "clse_attn"    # scoring method: "attn", "clse", or "clse_attn"
 
     def forward(
         self,
