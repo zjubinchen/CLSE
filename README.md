@@ -28,9 +28,7 @@
 
 ## 🔥 News
 * **`2026.06.19`** 🎉🎉 CLSE is accepted at **ECCV 2026**! Code and models are now available!
-* **`2025.10.13`** 🤗 We have released our latest work [EPIC](https://zichenwen1.github.io/EPIC/), an efficient framework for progressive consistency distillation in multimodal large language models!
-* **`2025.10.10`** 🤗 We've released our latest work, [VTC-Bench](https://arxiv.org/pdf/2510.07143). Come test whether your token compression method really works!
-* **`2025.08.21`** 🤗 Our [DART](https://arxiv.org/pdf/2502.11494) is accepted at EMNLP'25 main!
+
 
 ## 👀 Overview
 <p align='center'>
