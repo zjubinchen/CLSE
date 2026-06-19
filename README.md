@@ -36,7 +36,7 @@
 
 ## 👀 Overview
 <p align='center'>
-<img src='images/overview.pdf' alt='CLSE Overview' width='1000px'>
+<img src='images/overview.png' alt='CLSE Overview' width='1000px'>
 </p>
 
 > **TL;DR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
