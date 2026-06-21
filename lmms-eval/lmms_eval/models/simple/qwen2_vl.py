@@ -1,4 +1,6 @@
+import base64
 import re
+from io import BytesIO
 from typing import List, Optional, Tuple, Union
 
 import decord
@@ -16,7 +18,6 @@ from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
 from lmms_eval.imports import optional_import
-from lmms_eval.models.model_utils.media_encoder import encode_image_to_data_url
 
 process_vision_info, _has_qwen_vl = optional_import("qwen_vl_utils", "process_vision_info")
 if not _has_qwen_vl:
@@ -41,15 +42,19 @@ class Qwen2_VL(lmms):
         max_length: Optional[int] = 2048,  # Added max_length parameter
         max_pixels: int = 602112,
         min_pixels: int = 3136,
+        # max_pixels: int = 16384*28*28,
+        # min_pixels: int = 1280*28*28,
         max_num_frames: int = 32,
         system_prompt: Optional[str] = "You are a helpful assistant.",
         interleave_visuals: Optional[bool] = False,
         reasoning_prompt: Optional[str] = None,
+        load_in_4bit: Optional[bool] = False,
+        load_in_8bit: Optional[bool] = False,
         **kwargs,
     ) -> None:
         super().__init__()
         # Do not use kwargs for now
-        assert kwargs == {}, f"Unexpected kwargs: {kwargs}"
+        # assert kwargs == {}, f"Unexpected kwargs: {kwargs}"
 
         accelerator = Accelerator()
         if accelerator.num_processes > 1:
@@ -61,15 +66,35 @@ class Qwen2_VL(lmms):
             # Respect device_map if provided and not empty, otherwise use the determined device string
             self.device_map = device_map if device_map else device
 
+        quantization_config = None
+        if load_in_4bit or load_in_8bit:
+            from transformers import BitsAndBytesConfig
+            quantization_config = BitsAndBytesConfig(
+                load_in_4bit=load_in_4bit,
+                load_in_8bit=load_in_8bit,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+            )
+
+        load_kwargs: dict = {"torch_dtype": "auto", "device_map": self.device_map}
+        if quantization_config is not None:
+            load_kwargs["quantization_config"] = quantization_config
         if use_flash_attention_2:
-            self._model = Qwen2VLForConditionalGeneration.from_pretrained(
-                pretrained,
-                torch_dtype="auto",
-                device_map=self.device_map,
-                attn_implementation="flash_attention_2",
-            ).eval()
+            load_kwargs["attn_implementation"] = "flash_attention_2"
+
+        self._model = Qwen2VLForConditionalGeneration.from_pretrained(pretrained, **load_kwargs).eval()
+            
+        if kwargs.get("prune", False):
+            self._model.model.language_model.prune = True
+            self._model.model.language_model.cutoff = kwargs.get("cutoff", 0.1)
+            self._model.model.language_model.temp = kwargs.get("temp", 0.1)
+            self._model.model.language_model.score_type = kwargs.get("score_type", "attn")
+            import json
+            self._model.model.language_model.pruning_ratios = json.loads(kwargs.get("pruning_ratio", "[0.5,0.5,0.5]"))
+            self._model.model.language_model.L_list = json.loads(kwargs.get("l_list","[0,10,20]"))
+            self._model.model.language_model.K_list = json.loads(kwargs.get("k_list","[1,11,21]"))
         else:
-            self._model = Qwen2VLForConditionalGeneration.from_pretrained(pretrained, torch_dtype="auto", device_map=self.device_map).eval()
+            self._model.model.language_model.prune=False
+        
         self.processor = AutoProcessor.from_pretrained(pretrained, max_pixels=max_pixels, min_pixels=min_pixels)
         self.max_pixels = max_pixels
         self.min_pixels = min_pixels
@@ -169,15 +194,6 @@ class Qwen2_VL(lmms):
             for j in i:
                 new_list.append(j)
         return new_list
-
-    def _encode_image_data_url(self, image: Image.Image) -> str:
-        return encode_image_to_data_url(
-            image,
-            image_format="JPEG",
-            mime_type="image/jpeg",
-            convert_rgb=True,
-            quality=85,
-        )
 
     def generate_until(self, requests: List[Instance]) -> List[str]:
         res = []
@@ -287,10 +303,15 @@ class Qwen2_VL(lmms):
                             eval_logger.error(f"Failed to process video {visual}: {e}")
                     elif isinstance(visual, Image.Image):  # Handle PIL Image
                         try:
+                            base64_image = visual.convert("RGB")
+                            buffer = BytesIO()
+                            base64_image.save(buffer, format="JPEG")
+                            base64_bytes = base64.b64encode(buffer.getvalue())
+                            base64_string = base64_bytes.decode("utf-8")
                             processed_visuals.append(
                                 {
                                     "type": "image",
-                                    "image": self._encode_image_data_url(visual),
+                                    "image": f"data:image/jpeg;base64,{base64_string}",
                                     "max_pixels": self.max_pixels,
                                     "min_pixels": self.min_pixels,
                                 }
@@ -573,10 +594,15 @@ class Qwen2_VL(lmms):
                                 eval_logger.error(f"Failed to process video {visual}: {e}")
                         elif isinstance(visual, Image.Image):
                             try:
+                                base64_image = visual.convert("RGB")
+                                buffer = BytesIO()
+                                base64_image.save(buffer, format="JPEG")
+                                base64_bytes = base64.b64encode(buffer.getvalue())
+                                base64_string = base64_bytes.decode("utf-8")
                                 processed_visuals.append(
                                     {
                                         "type": "image",
-                                        "image": self._encode_image_data_url(visual),
+                                        "image": f"data:image/jpeg;base64,{base64_string}",
                                         "max_pixels": self.max_pixels,
                                         "min_pixels": self.min_pixels,
                                     }

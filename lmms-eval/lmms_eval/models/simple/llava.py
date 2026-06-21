@@ -21,18 +21,15 @@ from lmms_eval.api.registry import register_model
 warnings.filterwarnings("ignore")
 
 from loguru import logger as eval_logger
+from llava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
+from llava.conversation import conv_templates
+from llava.mm_utils import (
+    get_model_name_from_path,
+    process_images,
+    tokenizer_image_token,
+)
+from llava.model.builder import load_pretrained_model
 
-try:
-    from llava.constants import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
-    from llava.conversation import conv_templates
-    from llava.mm_utils import (
-        get_model_name_from_path,
-        process_images,
-        tokenizer_image_token,
-    )
-    from llava.model.builder import load_pretrained_model
-except Exception as e:
-    eval_logger.debug("LLaVA is not installed. Please install LLaVA to use this model.\nError: %s" % e)
 
 # inference implementation for attention, can be "sdpa", "eager", "flash_attention_2". Seems FA2 is not effective during inference: https://discuss.huggingface.co/t/flash-attention-has-no-effect-on-inference/73453/5
 # if is_flash_attn_2_available:
@@ -68,7 +65,7 @@ class Llava(lmms):
     ) -> None:
         super().__init__()
         # Do not use kwargs for now
-        assert kwargs == {}, f"Unexpected kwargs: {kwargs}"
+        # assert kwargs == {}, f"Unexpected kwargs: {kwargs}"
 
         accelerator_kwargs = InitProcessGroupKwargs(timeout=timedelta(weeks=52))
         accelerator = Accelerator(kwargs_handlers=[accelerator_kwargs])
@@ -100,6 +97,33 @@ class Llava(lmms):
             # for older versions of LLaVA that don't have multimodal argument
             llava_model_args.pop("multimodal", None)
             self._tokenizer, self._model, self._image_processor, self._max_length = load_pretrained_model(pretrained, None, model_name, device_map=self.device_map, **llava_model_args)
+        
+        if kwargs.get("prune", False):
+            self._model.model.prune = True
+            self._model.model.cutoff = kwargs.get("cutoff", 0.1)
+            self._model.model.temp = kwargs.get("temp", 0.1)
+            self._model.model.score_type = kwargs.get("score_type", "attn")
+            import json
+            self._model.model.keep_tokens = json.loads(kwargs.get("kp", "[576,576,576]"))
+            self._model.model.L_list = json.loads(kwargs.get("l_list","[0,10,20]"))
+            self._model.model.K_list = json.loads(kwargs.get("k_list","[1,11,21]"))
+        else:
+            self._model.model.prune=False
+
+        # Resolution-sweep overrides (for rebuttal R3-Q2). Accepts a Python literal
+        # such as image_grid_pinpoints=[[336,336]] in --model_args; lmms-eval's
+        # smart-comma-split parser already handles bracketed values.
+        if "image_grid_pinpoints" in kwargs:
+            import ast
+            pinpoints = kwargs["image_grid_pinpoints"]
+            if isinstance(pinpoints, str):
+                pinpoints = ast.literal_eval(pinpoints)
+            self._model.config.image_grid_pinpoints = pinpoints
+            eval_logger.info(f"Override image_grid_pinpoints -> {pinpoints}")
+        if "image_aspect_ratio" in kwargs:
+            self._model.config.image_aspect_ratio = kwargs["image_aspect_ratio"]
+            eval_logger.info(f"Override image_aspect_ratio -> {kwargs['image_aspect_ratio']}")
+
         self._config = self._model.config
         self.model.eval()
         if tie_weights:
