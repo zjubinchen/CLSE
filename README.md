@@ -107,15 +107,15 @@ RETAIN_RATIO=0.223 PRUNE=True bash qwen2vl_lmms_eval.sh
 RETAIN_RATIO=0.112 PRUNE=True bash qwen2vl_lmms_eval.sh
 ```
 
-### Video-LLaVA (video branch)
+### Video-LLaVA
 
 ```bash
 git checkout video
 # Evaluate with CLSE token pruning (video)
-bash scripts/v1_5/eval/run_qa_activitynet.sh  194
-bash scripts/v1_5/eval/run_qa_msvd.sh         194
-bash scripts/v1_5/eval/run_qa_msrvtt.sh       194
-bash scripts/v1_5/eval/run_qa_tgif.sh         194
+RETAIN_TOKEN=194 PRUNE=True bash run_qa_activitynet.sh  
+RETAIN_TOKEN=194 PRUNE=True bash run_qa_msvd.sh         
+RETAIN_TOKEN=194 PRUNE=True bash srun_qa_msrvtt.sh       
+RETAIN_TOKEN=194 PRUNE=True bash run_qa_tgif.sh         
 ```
 
 ## 📊 Key Results
