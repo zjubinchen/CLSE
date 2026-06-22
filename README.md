@@ -71,8 +71,8 @@ pip install -e ../lmms-eval -e transformers-4.57.6   # patched transformers last
 ### Video-LLaVA
 
 ```bash
-git checkout video                     # switch to video branch
 cd CLSE
+git checkout video                     # switch to video branch
 
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
