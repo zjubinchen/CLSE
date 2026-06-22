@@ -54,7 +54,7 @@ conda create -n clse python=3.10 -y
 conda activate clse
 pip install -e .
 pip install -e ../lmms-eval
-pip install -e transformers-4.37.2/transformers-4.37.2   # patched transformers last, overrides lmms-eval's
+pip install -e ../transformers-4.37.2   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Qwen2-VL
@@ -66,16 +66,19 @@ conda create -n clse_qwen python=3.10 -y
 conda activate clse_qwen
 pip install -r requirements.txt
 pip install -e ../lmms-eval
-pip install -e transformers-4.57.6/transformers-4.57.6   # patched transformers last, overrides lmms-eval's
+pip install -e transformers-4.57.6   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Video-LLaVA
 
 ```bash
-cd CLSE/Video-LLaVA
+git checkout video                     # switch to video branch
+cd CLSE
+
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
 pip install -e .
+pip install -e transformers-4.37.2
 pip install flash-attn --no-build-isolation
 ```
 
@@ -103,15 +106,15 @@ RETAIN_RATIO=0.223 prune=True bash qwen2vl_lmms_eval.sh
 RETAIN_RATIO=0.112 prune=True bash qwen2vl_lmms_eval.sh
 ```
 
-### Video-LLaVA
+### Video-LLaVA (video branch)
 
 ```bash
-cd Video-LLaVA
+git checkout video
 # Evaluate with CLSE token pruning (video)
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/activitynet.sh  194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msvd.sh         194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msrvtt.sh       194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/tgif.sh         194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_activitynet.sh  194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msvd.sh         194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msrvtt.sh       194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_tgif.sh         194
 ```
 
 ## 📊 Key Results
@@ -141,24 +144,43 @@ CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods
 
 ## 📁 Repository Structure
 
+> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`, `lmms-eval`) are present on both branches.
+
+### `main` branch — Image MLLMs
+
 ```
 CLSE/
-├── LLaVA1.5/              # CLSE integration for LLaVA-1.5 & LLaVA-Next
+├── LLaVA1.5/                  # CLSE integration for LLaVA-1.5 & LLaVA-Next
 │   ├── llava/model/language_model/
-│   │   ├── clse_model.py      # CLSELlamaModel with pruning logic
-│   │   ├── tools.py           # Spectral scoring utilities (FFT, evolution)
-│   │   └── llava_llama.py     # Modified to inherit CLSELlamaModel
-│   └── scripts/eval/          # Evaluation scripts
-├── Qwen2VL/               # CLSE integration for Qwen2-VL
+│   │   ├── clse_model.py          # CLSELlamaModel with pruning logic
+│   │   ├── tools.py               # Spectral scoring utilities (FFT, evolution)
+│   │   └── llava_llama.py         # Modified to inherit CLSELlamaModel
+│   ├── transformers-4.37.2/       # Patched transformers (shared)
+│   └── scripts/v1_5/eval/         # Evaluation scripts
+├── Qwen2VL/                   # CLSE integration for Qwen2-VL
 │   ├── modeling_qwen2_vl_clse.py  # CLSE-augmented Qwen2-VL model
-│   ├── tools.py                 # Spectral scoring utilities
-│   └── eval_scripts/            # Evaluation scripts
-├── Video-LLaVA/           # CLSE integration for Video-LLaVA
-│   ├── videollava/model/language_model/
-│   │   ├── clse_model.py      # CLSE model for video
-│   │   └── tools.py           # Video-compatible spectral scoring
-│   └── scripts/eval/          # Video evaluation scripts
-└── lmms-eval/             # Evaluation framework (modified for CLSE)
+│   ├── tools.py                   # Spectral scoring utilities
+│   ├── transformers-4.57.6/       # Patched transformers
+│   └── eval_scripts/              # Evaluation scripts
+├── transformers-4.37.2/       # Shared patched transformers
+├── lmms-eval/                 # Evaluation framework (modified for CLSE)
+└── images/                    # Overview figures
+```
+
+### `video` branch — Video MLLM
+
+```
+CLSE/
+├── videollava/                # CLSE integration for Video-LLaVA
+│   └── model/language_model/
+│       ├── clse_model.py          # CLSE model for video
+│       └── tools.py               # Video-compatible spectral scoring
+├── scripts/                   # Training & evaluation scripts
+│   └── v1_5/eval/                 # Video QA & benchmark scripts
+├── transformers-4.37.2/       # Shared patched transformers
+├── lmms-eval/                 # Evaluation framework
+├── pyproject.toml
+└── images/                    # Overview figures
 ```
 
 ## 🧪 How CLSE Works
