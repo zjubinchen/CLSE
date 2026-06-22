@@ -76,9 +76,8 @@ git checkout video                     # switch to video branch
 
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
-pip install -e transformers-4.37.2
-pip install -e .
-
+pip install -e transformers-4.37.2 -e .
+pip install opencv-python,openai,decord
 ```
 
 ## 🎯 Usage

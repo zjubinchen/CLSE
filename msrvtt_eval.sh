@@ -34,7 +34,7 @@ if [ "$only_eval" != "True" ]; then
             --output_dir ${current_output_dir} \
             --output_name ${CHUNKS}_${IDX} \
             --num_chunks $CHUNKS \
-            --chunk_idx $IDX \
+            --chunk_idx $IDX &
     done
     wait # 等待所有 GPU 完成
 
