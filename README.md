@@ -78,6 +78,7 @@ conda create -n clse_video python=3.10 -y
 conda activate clse_video
 pip install -e transformers-4.37.2 -e .
 pip install opencv-python,openai,decord,pytorchvideo
+pip install "numpy<2.0.0"
 ```
 
 ## 🎯 Usage
