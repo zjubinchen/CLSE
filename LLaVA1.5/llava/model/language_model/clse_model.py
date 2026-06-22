@@ -140,16 +140,15 @@ class CLSELlamaModel(LlamaModel):
                     image_attention_score = None
 
                 # compute per-token importance score
-                if current_layer_idx != self.K_list[0]:
-                    self.score_type = "attn" 
-                
+                image_grid_thw = self.image_grid_thw  if current_layer_idx == self.K_list[0] else None
                 evolution_score = calculate_evolution_score(
                     self.Z_L,
                     hidden_states[:, image_start:current_image_end, :],
                     image_attention_score,
-                    image_grid_thw=self.image_grid_thw,
+                    image_grid_thw=image_grid_thw,
                     score_type=self.score_type
                 )
+
 
                 # select top-k visual tokens and rebuild the full sequence index
                 top_indices = evolution_score.topk(keep_k).indices + image_start
