@@ -183,19 +183,6 @@ CLSE/
 └── images/                    # Overview figures
 ```
 
-## 🧪 How CLSE Works
-
-<p align='center'>
-<img src='images/method.png' alt='CLSE Method' width='900px'>
-</p>
-
-1. **Reference Recording** — At layer ℓ, snapshot visual token features as reference
-2. **Spectral Scoring** — At layer ℓ+1, compute per-token high-frequency energy via 2D FFT with Gaussian high-pass filtering
-3. **Evolution Intensity** — Measure the normalized cross-layer spectral change: tokens that undergo meaningful structural-to-semantic transitions score higher
-4. **Pruning** — Select top-K tokens by evolution intensity and continue decoding with the pruned sequence
-
-Theoretical justification: selecting top-K tokens by CLSE **minimizes an upper bound** on the perturbation of subsequent decoder layers (see paper for proof).
-
 ## 🔑 License
 
 This project is released under the [Apache 2.0 license](LICENSE).
