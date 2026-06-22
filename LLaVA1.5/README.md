@@ -2,7 +2,7 @@ Below are the modifications made to the original [LLaVA](https://github.com/haot
 
 1. put `clse_model.py` and `tools.py` under `llava/model/language_model/`
 
-2. replace `LlavaLlamaModel` from `llava/model/language_model/llava_llama.py` with following code (inheriting `CLSELlamaModel` instead of `FastVLlamaModel`):
+2. replace `LlavaLlamaModel` from `llava/model/language_model/llava_llama.py` with following code:
 ```python
 from .clse_model import CLSELlamaModel
 class LlavaLlamaModel(LlavaMetaModel, CLSELlamaModel):
