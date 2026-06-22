@@ -145,7 +145,7 @@ CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods
 
 ## 📁 Repository Structure
 
-> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`, `lmms-eval`) are present on both branches.
+> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`) are present on both branches.
 
 ## 🔑 License
 
