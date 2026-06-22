@@ -177,8 +177,7 @@ class CLSELlamaModel(LlamaModel):
                     past_key_values.seen_tokens = len(keep_indexs)
 
             # --- pre-compute attention one layer before each pruning point for attn-based scores ---
-            last_attn = (self.prune and self.score_type != "clse"
-                         and current_layer_idx in [k - 1 for k in self.K_list]
+            last_attn = (self.prune and current_layer_idx in [k - 1 for k in self.K_list]
                          and seq_length > 1 and has_visual)
             if last_attn:
                 seq_length_temp = hidden_states.size(1)
