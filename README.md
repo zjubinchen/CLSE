@@ -90,10 +90,10 @@ pip install -e .
 ```bash
 cd LLaVA1.5
 
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/gqa.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mmbench.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mme.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/pope.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/gqa.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mmbench.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mme.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/pope.sh
 
 RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 ```
@@ -102,9 +102,9 @@ RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 
 ```bash
 cd Qwen2VL
-RETAIN_RATIO=0.334 prune=True bash qwen2vl_lmms_eval.sh
-RETAIN_RATIO=0.223 prune=True bash qwen2vl_lmms_eval.sh
-RETAIN_RATIO=0.112 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.334 PRUNE=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.223 PRUNE=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.112 PRUNE=True bash qwen2vl_lmms_eval.sh
 ```
 
 ### Video-LLaVA (video branch)
@@ -163,7 +163,6 @@ CLSE/
 │   ├── tools.py                   # Spectral scoring utilities
 │   ├── transformers-4.57.6/       # Patched transformers
 │   └── eval_scripts/              # Evaluation scripts
-├── transformers-4.37.2/       # Shared patched transformers
 ├── lmms-eval/                 # Evaluation framework (modified for CLSE)
 └── images/                    # Overview figures
 ```
@@ -183,19 +182,6 @@ CLSE/
 ├── pyproject.toml
 └── images/                    # Overview figures
 ```
-
-## 🧪 How CLSE Works
-
-<p align='center'>
-<img src='images/method.png' alt='CLSE Method' width='900px'>
-</p>
-
-1. **Reference Recording** — At layer ℓ, snapshot visual token features as reference
-2. **Spectral Scoring** — At layer ℓ+1, compute per-token high-frequency energy via 2D FFT with Gaussian high-pass filtering
-3. **Evolution Intensity** — Measure the normalized cross-layer spectral change: tokens that undergo meaningful structural-to-semantic transitions score higher
-4. **Pruning** — Select top-K tokens by evolution intensity and continue decoding with the pruned sequence
-
-Theoretical justification: selecting top-K tokens by CLSE **minimizes an upper bound** on the perturbation of subsequent decoder layers (see paper for proof).
 
 ## 🔑 License
 
