@@ -112,10 +112,10 @@ RETAIN_RATIO=0.112 PRUNE=True bash qwen2vl_lmms_eval.sh
 ```bash
 git checkout video
 # Evaluate with CLSE token pruning (video)
-CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_activitynet.sh  194
-CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msvd.sh         194
-CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msrvtt.sh       194
-CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_tgif.sh         194
+bash scripts/v1_5/eval/run_qa_activitynet.sh  194
+bash scripts/v1_5/eval/run_qa_msvd.sh         194
+bash scripts/v1_5/eval/run_qa_msrvtt.sh       194
+bash scripts/v1_5/eval/run_qa_tgif.sh         194
 ```
 
 ## 📊 Key Results
