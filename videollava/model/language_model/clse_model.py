@@ -24,8 +24,6 @@ class CLSELlamaModel(LlamaModel):
         super().__init__(config)
         self.last_attention = None       # attention map cached from the layer before pruning
         self.Z_L = None                  # reference features cached at each L in L_list
-        self.cutoff = 0.1                # high-pass cutoff ratio for the Gaussian spectral filter
-        self.temp = 0.1                  # temperature for sigmoid normalization of evolution intensity
         self.prune = os.getenv("PRUNE", False)    # whether to enable visual token pruning
         self.keep_token = [int(os.getenv("KEEP_TOKEN", 2048))]     # number of visual tokens to retain at each pruning stage
         self.L_list = [2]                # layer indices at which reference features are recorded
@@ -139,8 +137,6 @@ class CLSELlamaModel(LlamaModel):
                     hidden_states[:, image_start:current_image_end, :],
                     image_attention_score.unsqueeze(0),
                     image_grid_thw,
-                    self.cutoff,
-                    self.temp,
                     self.score_type
                 )
 
