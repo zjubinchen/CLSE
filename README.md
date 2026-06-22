@@ -52,9 +52,10 @@ cd CLSE/LLaVA1.5
 
 conda create -n clse python=3.10 -y
 conda activate clse
+pip install -e transformers-4.37.2
 pip install -e .
 pip install -e ../lmms-eval
-pip install -e ../transformers-4.37.2   # patched transformers last, overrides lmms-eval's
+pip install -e transformers-4.37.2   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Qwen2-VL
@@ -77,9 +78,9 @@ cd CLSE
 
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
-pip install -e .
 pip install -e transformers-4.37.2
-pip install flash-attn --no-build-isolation
+pip install -e .
+
 ```
 
 ## 🎯 Usage
