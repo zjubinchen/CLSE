@@ -1022,7 +1022,7 @@ class Qwen2VLTextModel(Qwen2VLPreTrainedModel):
             0.223 : keep_ratio_list_223,
             0.112 : keep_ratio_list_112
         }
-        self.keep_ratios = token_dict[self.retain_ratio] if self.retain_ratio in token_dict else [self.retain_ratio*r for r in [1.71,1.08,0.294]]
+        self.keep_ratios = ratio_dict[self.retain_ratio] if self.retain_ratio in ratio_dict else [self.retain_ratio*r for r in [1.71,1.08,0.294]]
 
 
         for layer_idx, decoder_layer in enumerate(self.layers):
