@@ -15,14 +15,6 @@ from videollava.train.train import smart_tokenizer_and_embedding_resize
 import random
 import numpy as np
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
 
 def split_list(lst, n):
     """Split a list into n (roughly) equal-sized chunks"""
@@ -53,17 +45,6 @@ def parse_args():
     parser.add_argument("--device", type=str, required=False, default='cuda:0')
     parser.add_argument('--model_base', help='', default=None, type=str, required=False)
     parser.add_argument("--model_max_length", type=int, required=False, default=2048)
-    parser.add_argument("--method", type=str, required=False, default="gest")
-    parser.add_argument("--seed", type=int, required=False, default=42)
-    parser.add_argument('--keep_tokens', type=str, default="[2048,2048,2048]")
-    parser.add_argument('--score_type', type=str, required=False, default=None)
-    parser.add_argument('--cutoff', type=float, required=False, default=None)
-    parser.add_argument('--temp', type=float, required=False, default=None)
-    parser.add_argument('--l_list', type=str, required=False, default=None)
-    parser.add_argument('--k_list', type=str, required=False, default=None)
-    parser.add_argument('--use_cluster_merge', type=str, required=False, default=None)
-    parser.add_argument('--merge_tokens', type=int, required=False, default=None)
-    parser.add_argument('--reorder_pos', type=str, required=False, default=None)
     return parser.parse_args()
 
 def get_model_output(model, video_processor, tokenizer, video, qs, args):
@@ -120,31 +101,9 @@ def run_inference(args):
     Args:
         args: Command-line arguments.
     """
-    set_seed(args.seed)
     # Initialize the model
     model_name = get_model_name_from_path(args.model_path)
     tokenizer, model, processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name)
-    methods = {"fastv":"attn","gest":"clse_attn"}
-    import json
-    model.model.keep_tokens = json.loads(args.keep_tokens)
-    if args.score_type is not None:
-        model.model.score_type = args.score_type
-    else:
-        model.model.score_type = methods[args.method] if args.method in methods else "attn"
-    if args.cutoff is not None:
-        model.model.cutoff = args.cutoff
-    if args.temp is not None:
-        model.model.temp = args.temp
-    if args.l_list is not None:
-        model.model.L_list = json.loads(args.l_list)
-    if args.k_list is not None:
-        model.model.K_list = json.loads(args.k_list)
-    if args.use_cluster_merge is not None:
-        model.model.use_cluster_merge = args.use_cluster_merge.lower() == 'true'
-    if args.merge_tokens is not None:
-        model.model.merge_tokens = args.merge_tokens
-    if args.reorder_pos is not None:
-        model.model.reorder_pos = args.reorder_pos.lower() == 'true'
     model.eval()
     model = model.to(args.device)
 
