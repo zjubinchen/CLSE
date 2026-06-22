@@ -22,6 +22,6 @@ from different attention implementation, to
 cos, sin = self.rotary_emb(value_states, seq_len=position_ids.max().item() + 1)
 ```
 
-4. After finishing the steps ahead, the updated llava directly supports [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) repo for more convinent evaluation of CLSE.
+4. After finishing the steps ahead, the updated LLaVA directly supports [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) repo for more convinent evaluation of CLSE.
 
 

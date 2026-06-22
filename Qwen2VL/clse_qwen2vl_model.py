@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, Union, List
 from .tools import calculate_evolution_score
 
-class CLSEQwen2VLTextModel(Qwen2VLPreTrainedModel):
+class Qwen2VLTextModel(Qwen2VLPreTrainedModel):
     config: Qwen2VLTextConfig
 
     def __init__(self, config: Qwen2VLTextConfig):

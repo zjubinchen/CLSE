@@ -895,7 +895,6 @@ class Qwen2VisionTransformerPretrainedModel(Qwen2VLPreTrainedModel):
 
 from typing import Optional, Tuple, Union, List
 from .tools import calculate_evolution_score
-
 @auto_docstring
 class Qwen2VLTextModel(Qwen2VLPreTrainedModel):
     config: Qwen2VLTextConfig

@@ -1,42 +1,15 @@
-1. Clone the latest LLaVA repo
-```bash
-git clone https://github.com/haotian-liu/LLaVA.git
-cd LLaVA
-```
+Below are the modifications made to the original transformers `qwen2_vl` model:
 
-2. Install LLaVA
-```bash
-conda create -n llava python=3.10 -y
-conda activate llava
-pip install --upgrade pip  # enable PEP 660 support
-pip install -e .
-```
-3. put `fastv_kvcache.py` under `llava/model/language_model/`
+1. put `tools.py` under `transformers/src/transformers/models/qwen2_vl/`
 
-4. replace `LlavaLlamaModel` from `llava/model/language_model/llava_llama.py` with following code:
+2. replace the `Qwen2VLTextModel` class in `transformers/src/transformers/models/qwen2_vl/modeling_qwen2_vl.py` with the content of `clse_qwen2vl_model.py`
+
+3. in `transformers/src/transformers/models/qwen2_vl/modeling_qwen2_vl.py`, insert the following at the beginning of `Qwen2VLForConditionalGeneration.forward()`:
 ```python
-from .fastv_kvcache import FastVLlamaModel
-class LlavaLlamaModel(LlavaMetaModel, FastVLlamaModel): # Alter LlamaModel to  FastVLlamaModel
-    config_class = LlavaConfig
-
-    def __init__(self, config: LlamaConfig):
-        super(LlavaLlamaModel, self).__init__(config)
+self.model.language_model.visual_pos_masks = (input_ids == 151655)
+self.model.language_model.image_grid_thw = image_grid_thw
 ```
 
-HINT: You could change the K and R hyper-parameters of FastV in line 119 and 120.
+HINT: You could change the K and R hyper-parameters of CLSE in `clse_qwen2vl_model.py` (`retain_ratio`, `K_list`, `L_list`, `score_type`).
 
-5. Go to your `transformers/src/transformers/models/llama/modeling_llama.py` in the conda envs, change **all three** 
-```python
-cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
-```
-from different attention implementation, to
-
-```python
-cos, sin = self.rotary_emb(value_states, seq_len=position_ids.max().item() + 1)
-```
-
-6. After finishing the steps ahead, the updated llava directly supports [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) repo for more convinent evaluation of fastv.
-
-## Acknowledgements
-
-Thanks [Zhihang Lin](https://github.com/Stardust1956) from Xiamen University for providing the code.
+4. After finishing the steps ahead, the updated Qwen2-VL directly supports [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) repo for more convenient evaluation of CLSE.
