@@ -18,7 +18,7 @@ accelerate launch --num_processes=$NUM_GPUS \
     --main_process_port $PORT \
     -m lmms_eval \
     --model qwen2_vl \
-    --model_args "pretrained=${MODEL_PATH}\
+    --model_args "pretrained=${MODEL_PATH}"\
     --tasks $TASKS \
     --batch_size 1 \
     --output_path "$CURRENT_OUTPUT" \
