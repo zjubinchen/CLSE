@@ -1,3 +1,4 @@
+-e transformers-4.57.6 
 torch>=2.1.2
 accelerate
 qwen-vl-utils[decord]

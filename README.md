@@ -90,10 +90,10 @@ pip install -e .
 ```bash
 cd LLaVA1.5
 
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/gqa.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mmbench.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mme.sh
-CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/pope.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/gqa.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mmbench.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mme.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/pope.sh
 
 RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 ```
@@ -102,9 +102,9 @@ RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 
 ```bash
 cd Qwen2VL
-RETAIN_RATIO=0.334 prune=True bash qwen2vl_lmms_eval.sh
-RETAIN_RATIO=0.223 prune=True bash qwen2vl_lmms_eval.sh
-RETAIN_RATIO=0.112 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.334 PRUNE=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.223 PRUNE=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.112 PRUNE=True bash qwen2vl_lmms_eval.sh
 ```
 
 ### Video-LLaVA (video branch)

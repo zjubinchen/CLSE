@@ -19,14 +19,15 @@ class Qwen2VLTextModel(Qwen2VLPreTrainedModel):
         
         self.gradient_checkpointing = False
 
-        self.prune = False                   # whether to enable visual token pruning
+        self.prune = os.getenv("PRUNE", False) # whether to enable visual token pruning
+        self.retain_ratio =  float(os.getenv("RETAIN_RATIO", 1.0)) 
         self.last_attention = None           # attention map cached from the layer before pruning
         self.image_grid_thw = None           # visual grid tensor [N_images, 3] with (T, H, W) per image; set externally before forward; H//2, W//2 used for spectral scoring
         self.Z_L = None                      # reference features cached at each L in L_list
-        self.score_type = "clse"             # scoring method: "attn", "clse", or "clse_attn"
+        self.score_type = "clse_attn"             # scoring method: "attn", "clse", or "clse_attn"
         self.L_list = [0]                    # layer indices at which reference features are recorded
         self.K_list = [1,10,19]              # layer indices at which pruning is applied
-        self.retain_ratio =  int(os.getenv("RETAIN_RATIO", "1")) 
+ 
         self.has_sliding_layers = "sliding_attention" in getattr(config, "layer_types", [])
         self.post_init()
 

@@ -25,7 +25,7 @@ class CLSELlamaModel(LlamaModel):
         super().__init__(config)
         self.last_attention = None        # attention map cached from the layer before pruning
         self.Z_L = None                   # reference features cached at each L in L_list
-        self.prune = False                # whether to enable visual token pruning
+        self.prune = os.getenv("PRUNE", False)               # whether to enable visual token pruning
         self.retain_token = int(os.getenv("RETAIN_TOKEN", "576"))         
         self.L_list = [0]                 # layer indices at which reference features are recorded
         self.K_list = [1,11,21]           # layer indices at which pruning is applied
