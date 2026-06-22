@@ -1,0 +1,6 @@
+torch>=2.1.2
+accelerate
+qwen-vl-utils[decord]
+numpy
+einops
+Pillow

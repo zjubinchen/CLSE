@@ -48,24 +48,25 @@
 
 ```bash
 git clone https://github.com/zjubinchen/CLSE
-cd LLaVA1.5
+cd CLSE/LLaVA1.5
 
 conda create -n clse python=3.10 -y
 conda activate clse
-pip install -e transformers-4.37.2/transformers-4.37.2   # install patched transformers first
 pip install -e .
+pip install -e ../lmms-eval
+pip install -e transformers-4.37.2/transformers-4.37.2   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Qwen2-VL
 
 ```bash
 cd CLSE/Qwen2VL
+
 conda create -n clse_qwen python=3.10 -y
 conda activate clse_qwen
-pip install -e .
-pip install accelerate qwen-vl-utils[decord]
-pip install flash-attn --no-build-isolation
-cd ../lmms-eval && pip install -e .
+pip install -r requirements.txt
+pip install -e ../lmms-eval
+pip install -e transformers-4.57.6/transformers-4.57.6   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Video-LLaVA
