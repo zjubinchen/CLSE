@@ -140,8 +140,8 @@ CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods
 
 | | Prefill Time ↓ | FLOPs ↓ | KV Cache ↓ | Throughput ↑ |
 |---|---|---|---|---|
-| LLaVA-1.5 (192 tok) | **2.2× faster** | **3.0× lower** | **3.0× smaller** | **1.7× higher** |
-| Video-LLaVA (194 tok) | **10.6× faster** | **10.6× lower** | **10.6× smaller** | **8.3× higher** |
+| LLaVA-1.5 (192 tok) | **1.51× faster** | **2.28× lower** | **5.59× smaller** | **1.44× higher** |
+| Video-LLaVA (194 tok) | **2.73× faster** | **9.35× lower** | **8.70× smaller** | **2.28× higher** |
 
 ## 📁 Repository Structure
 
