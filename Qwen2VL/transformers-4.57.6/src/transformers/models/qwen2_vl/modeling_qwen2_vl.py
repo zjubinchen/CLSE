@@ -1018,9 +1018,9 @@ class Qwen2VLTextModel(Qwen2VLPreTrainedModel):
         keep_ratio_list_223 = [0.38,0.24,0.066]
         keep_ratio_list_112 = [0.19,0.12,0.034]
         ratio_dict = {
-            0.334 : keep_ration_list_334,
-            0.223 : keep_ration_list_223,
-            0.112 : keep_ration_list_112
+            0.334 : keep_ratio_list_334,
+            0.223 : keep_ratio_list_223,
+            0.112 : keep_ratio_list_112
         }
         self.keep_ratios = token_dict[self.retain_ratio] if self.retain_ratio in token_dict else [self.retain_ratio*r for r in [1.71,1.08,0.294]]
 
