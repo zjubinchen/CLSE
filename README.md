@@ -95,7 +95,7 @@ CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mmbenc
 CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/mme.sh
 CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 PRUNE=True bash scripts/v1_5/eval/pope.sh
 
-RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
+RETAIN_TOKEN=192 PRUNE=True bash llava_lmms_eval.sh
 ```
 
 ### Qwen2-VL
