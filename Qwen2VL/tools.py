@@ -72,9 +72,9 @@ def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(24, 
         return attn_score
 
     h, w = image_grid_thw
-    score_L  = spatial_spectral_score_2d(z_L,  h, w, cutoff_ratio=cutoff)
-    score_Lk = spatial_spectral_score_2d(z_Lk, h, w, cutoff_ratio=cutoff)
-    evo_factor = get_evolution_factor(score_L, score_Lk, temp=temp)
+    score_L  = spatial_spectral_score_2d(z_L,  h, w)
+    score_Lk = spatial_spectral_score_2d(z_Lk, h, w)
+    evo_factor = get_evolution_factor(score_L, score_Lk)
 
     if score_type == "clse_attn":
         return evo_factor * attn_score
