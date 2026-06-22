@@ -39,48 +39,21 @@
 <img src='images/overview.png' alt='CLSE Overview' width='1000px'>
 </p>
 
-> **TL;DR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
+> **TLDR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
 
-### 🔬 What is CLSE?
-
-Existing token pruning methods rely on **single-layer signals** (attention scores, feature magnitudes, or token similarities), which:
-- Overlook the **cross-layer transformation** of visual representations
-- Exhibit **positional bias** in multimodal token sequences
-
-CLSE addresses these limitations by measuring token importance through **cross-layer spectral evolution**:
-1. **Frequency-domain projection** — Transform visual tokens into the frequency domain and apply a Gaussian high-pass filter to isolate structural information
-2. **Cross-layer evolution quantification** — Measure how each token's spectral profile evolves between adjacent layers, capturing the transition from high-frequency details to low-frequency semantic abstractions
-3. **Top-K preservation** — Retain tokens with the strongest spectral redistribution, as they contribute most meaningfully to multimodal reasoning
-
-### 🎯 Key Features
-
-- **Training-free & Plug-and-Play** — No fine-tuning required; seamlessly integrates with existing MLLMs
-- **Positional Bias Mitigation** — Spectral evolution provides a more reliable importance signal than attention scores
-- **Multi-Architecture Support** — Compatible with LLaVA-1.5, LLaVA-Next, Qwen2-VL, and Video-LLaVA
-- **Token Merging Compatible** — Orthogonal to token merging methods; can be combined for further gains (e.g., CLSE-M for video)
-- **Early-Layer Pruning** — Prunes at layer 1 of the LLM decoder, maximizing prefill speedups
-
-## 📦 Supported Models
-
-| Model | Code Directory | Token Budget | Pruning Ratio |
-|---|---|---|---|
-| LLaVA-1.5-7B / 13B | [`LLaVA1.5/`](LLaVA1.5/) | 192 / 128 / 64 | 66.7%–88.9% |
-| LLaVA-Next-7B | [`LLaVA1.5/`](LLaVA1.5/) | 320 | 88.9% |
-| Qwen2-VL-7B / 72B | [`Qwen2VL/`](Qwen2VL/) | Adaptive | 66.7%–88.9% |
-| Video-LLaVA-7B | [`Video-LLaVA/`](Video-LLaVA/) | 194 | >90% |
 
 ## 🛠 Installation
 
-### LLaVA-1.5 & LLaVA-Next
+### LLaVA-1.5
 
 ```bash
 git clone https://github.com/zjubinchen/CLSE
-cd CLSE/LLaVA1.5
+cd LLaVA1.5
 
 conda create -n clse python=3.10 -y
 conda activate clse
+pip install -e transformers-4.37.2/transformers-4.37.2   # install patched transformers first
 pip install -e .
-pip install flash-attn --no-build-isolation
 ```
 
 ### Qwen2-VL
@@ -111,30 +84,22 @@ pip install flash-attn --no-build-isolation
 
 ```bash
 cd LLaVA1.5
-# Evaluate with CLSE token pruning (e.g., retain 192 tokens, ↓66.7%)
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/textvqa.sh  192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/pope.sh     192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mme.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/gqa.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mmb.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/sqa.sh      192
+
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/gqa.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mmbench.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mme.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/pope.sh
+
+RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 ```
-
-**Key Configuration** — CLSE hyperparameters are set in the model config or passed directly:
-
-| Parameter | Description | Default |
-|---|---|---|
-| `keep_tokens` | Number of visual tokens to retain | `192` |
-| `score_type` | Scoring method: `"clse"`, `"attn"`, or `"clse_attn"` | `"clse"` |
-| `cutoff` | Gaussian high-pass cutoff ratio | `0.1` |
-| `temp` | Temperature for evolution intensity normalization | `0.1` |
 
 ### Qwen2-VL
 
 ```bash
 cd Qwen2VL
-# Enable CLSE pruning with a target reduction ratio
-bash eval_scripts/lmms_eval.sh True [Reduction_Ratio]
+RETAIN_RATIO=0.334 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.223 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.112 prune=True bash qwen2vl_lmms_eval.sh
 ```
 
 ### Video-LLaVA
