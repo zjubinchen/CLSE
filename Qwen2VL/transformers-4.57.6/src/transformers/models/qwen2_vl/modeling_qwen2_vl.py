@@ -892,7 +892,7 @@ class Qwen2VisionTransformerPretrainedModel(Qwen2VLPreTrainedModel):
 #             hidden_states=all_hidden_states,
 #             attentions=all_self_attns,
 #         )
-
+import os
 from typing import Optional, Tuple, Union, List
 from .tools import calculate_evolution_score
 @auto_docstring

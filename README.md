@@ -52,10 +52,9 @@ cd CLSE/LLaVA1.5
 
 conda create -n clse python=3.10 -y
 conda activate clse
-pip install -e transformers-4.37.2
-pip install -e .
-pip install -e ../lmms-eval
-pip install -e transformers-4.37.2   # patched transformers last, overrides lmms-eval's
+pip install -e transformers-4.37.2  -e .
+pip install -e ../lmms-eval -e transformers-4.37.2   # patched transformers last, overrides lmms-eval's
+pip install "numpy<2.0.0" 
 ```
 
 ### Qwen2-VL
@@ -66,8 +65,7 @@ cd CLSE/Qwen2VL
 conda create -n clse_qwen python=3.10 -y
 conda activate clse_qwen
 pip install -r requirements.txt
-pip install -e ../lmms-eval
-pip install -e transformers-4.57.6   # patched transformers last, overrides lmms-eval's
+pip install -e ../lmms-eval -e transformers-4.57.6   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Video-LLaVA
