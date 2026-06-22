@@ -39,39 +39,12 @@
 <img src='images/overview.png' alt='CLSE Overview' width='1000px'>
 </p>
 
-> **TL;DR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
+> **TLDR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
 
-### 🔬 What is CLSE?
-
-Existing token pruning methods rely on **single-layer signals** (attention scores, feature magnitudes, or token similarities), which:
-- Overlook the **cross-layer transformation** of visual representations
-- Exhibit **positional bias** in multimodal token sequences
-
-CLSE addresses these limitations by measuring token importance through **cross-layer spectral evolution**:
-1. **Frequency-domain projection** — Transform visual tokens into the frequency domain and apply a Gaussian high-pass filter to isolate structural information
-2. **Cross-layer evolution quantification** — Measure how each token's spectral profile evolves between adjacent layers, capturing the transition from high-frequency details to low-frequency semantic abstractions
-3. **Top-K preservation** — Retain tokens with the strongest spectral redistribution, as they contribute most meaningfully to multimodal reasoning
-
-### 🎯 Key Features
-
-- **Training-free & Plug-and-Play** — No fine-tuning required; seamlessly integrates with existing MLLMs
-- **Positional Bias Mitigation** — Spectral evolution provides a more reliable importance signal than attention scores
-- **Multi-Architecture Support** — Compatible with LLaVA-1.5, LLaVA-Next, Qwen2-VL, and Video-LLaVA
-- **Token Merging Compatible** — Orthogonal to token merging methods; can be combined for further gains (e.g., CLSE-M for video)
-- **Early-Layer Pruning** — Prunes at layer 1 of the LLM decoder, maximizing prefill speedups
-
-## 📦 Supported Models
-
-| Model | Code Directory | Token Budget | Pruning Ratio |
-|---|---|---|---|
-| LLaVA-1.5-7B / 13B | [`LLaVA1.5/`](LLaVA1.5/) | 192 / 128 / 64 | 66.7%–88.9% |
-| LLaVA-Next-7B | [`LLaVA1.5/`](LLaVA1.5/) | 320 | 88.9% |
-| Qwen2-VL-7B / 72B | [`Qwen2VL/`](Qwen2VL/) | Adaptive | 66.7%–88.9% |
-| Video-LLaVA-7B | [`Video-LLaVA/`](Video-LLaVA/) | 194 | >90% |
 
 ## 🛠 Installation
 
-### LLaVA-1.5 & LLaVA-Next
+### LLaVA-1.5
 
 ```bash
 git clone https://github.com/zjubinchen/CLSE
@@ -79,30 +52,35 @@ cd CLSE/LLaVA1.5
 
 conda create -n clse python=3.10 -y
 conda activate clse
+pip install -e transformers-4.37.2
 pip install -e .
-pip install flash-attn --no-build-isolation
+pip install -e ../lmms-eval
+pip install -e transformers-4.37.2   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Qwen2-VL
 
 ```bash
 cd CLSE/Qwen2VL
+
 conda create -n clse_qwen python=3.10 -y
 conda activate clse_qwen
-pip install -e .
-pip install accelerate qwen-vl-utils[decord]
-pip install flash-attn --no-build-isolation
-cd ../lmms-eval && pip install -e .
+pip install -r requirements.txt
+pip install -e ../lmms-eval
+pip install -e transformers-4.57.6   # patched transformers last, overrides lmms-eval's
 ```
 
 ### Video-LLaVA
 
 ```bash
-cd CLSE/Video-LLaVA
+git checkout video                     # switch to video branch
+cd CLSE
+
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
+pip install -e transformers-4.37.2
 pip install -e .
-pip install flash-attn --no-build-isolation
+
 ```
 
 ## 🎯 Usage
@@ -111,41 +89,33 @@ pip install flash-attn --no-build-isolation
 
 ```bash
 cd LLaVA1.5
-# Evaluate with CLSE token pruning (e.g., retain 192 tokens, ↓66.7%)
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/textvqa.sh  192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/pope.sh     192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mme.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/gqa.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/mmb.sh      192
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/sqa.sh      192
+
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/gqa.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mmbench.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/mme.sh
+CUDA_VISIBLE_DEVICES=0 RETAIN_TOKEN=192 prune=True bash scripts/v1_5/eval/pope.sh
+
+RETAIN_TOKEN=192 prune=True bash llava_lmms_eval.sh
 ```
-
-**Key Configuration** — CLSE hyperparameters are set in the model config or passed directly:
-
-| Parameter | Description | Default |
-|---|---|---|
-| `keep_tokens` | Number of visual tokens to retain | `192` |
-| `score_type` | Scoring method: `"clse"`, `"attn"`, or `"clse_attn"` | `"clse"` |
-| `cutoff` | Gaussian high-pass cutoff ratio | `0.1` |
-| `temp` | Temperature for evolution intensity normalization | `0.1` |
 
 ### Qwen2-VL
 
 ```bash
 cd Qwen2VL
-# Enable CLSE pruning with a target reduction ratio
-bash eval_scripts/lmms_eval.sh True [Reduction_Ratio]
+RETAIN_RATIO=0.334 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.223 prune=True bash qwen2vl_lmms_eval.sh
+RETAIN_RATIO=0.112 prune=True bash qwen2vl_lmms_eval.sh
 ```
 
-### Video-LLaVA
+### Video-LLaVA (video branch)
 
 ```bash
-cd Video-LLaVA
+git checkout video
 # Evaluate with CLSE token pruning (video)
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/activitynet.sh  194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msvd.sh         194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/msrvtt.sh       194
-CUDA_VISIBLE_DEVICES=0 bash scripts/eval/tgif.sh         194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_activitynet.sh  194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msvd.sh         194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_msrvtt.sh       194
+CUDA_VISIBLE_DEVICES=0 bash scripts/v1_5/eval/run_qa_tgif.sh         194
 ```
 
 ## 📊 Key Results
@@ -175,24 +145,43 @@ CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods
 
 ## 📁 Repository Structure
 
+> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`, `lmms-eval`) are present on both branches.
+
+### `main` branch — Image MLLMs
+
 ```
 CLSE/
-├── LLaVA1.5/              # CLSE integration for LLaVA-1.5 & LLaVA-Next
+├── LLaVA1.5/                  # CLSE integration for LLaVA-1.5 & LLaVA-Next
 │   ├── llava/model/language_model/
-│   │   ├── clse_model.py      # CLSELlamaModel with pruning logic
-│   │   ├── tools.py           # Spectral scoring utilities (FFT, evolution)
-│   │   └── llava_llama.py     # Modified to inherit CLSELlamaModel
-│   └── scripts/eval/          # Evaluation scripts
-├── Qwen2VL/               # CLSE integration for Qwen2-VL
+│   │   ├── clse_model.py          # CLSELlamaModel with pruning logic
+│   │   ├── tools.py               # Spectral scoring utilities (FFT, evolution)
+│   │   └── llava_llama.py         # Modified to inherit CLSELlamaModel
+│   ├── transformers-4.37.2/       # Patched transformers (shared)
+│   └── scripts/v1_5/eval/         # Evaluation scripts
+├── Qwen2VL/                   # CLSE integration for Qwen2-VL
 │   ├── modeling_qwen2_vl_clse.py  # CLSE-augmented Qwen2-VL model
-│   ├── tools.py                 # Spectral scoring utilities
-│   └── eval_scripts/            # Evaluation scripts
-├── Video-LLaVA/           # CLSE integration for Video-LLaVA
-│   ├── videollava/model/language_model/
-│   │   ├── clse_model.py      # CLSE model for video
-│   │   └── tools.py           # Video-compatible spectral scoring
-│   └── scripts/eval/          # Video evaluation scripts
-└── lmms-eval/             # Evaluation framework (modified for CLSE)
+│   ├── tools.py                   # Spectral scoring utilities
+│   ├── transformers-4.57.6/       # Patched transformers
+│   └── eval_scripts/              # Evaluation scripts
+├── transformers-4.37.2/       # Shared patched transformers
+├── lmms-eval/                 # Evaluation framework (modified for CLSE)
+└── images/                    # Overview figures
+```
+
+### `video` branch — Video MLLM
+
+```
+CLSE/
+├── videollava/                # CLSE integration for Video-LLaVA
+│   └── model/language_model/
+│       ├── clse_model.py          # CLSE model for video
+│       └── tools.py               # Video-compatible spectral scoring
+├── scripts/                   # Training & evaluation scripts
+│   └── v1_5/eval/                 # Video QA & benchmark scripts
+├── transformers-4.37.2/       # Shared patched transformers
+├── lmms-eval/                 # Evaluation framework
+├── pyproject.toml
+└── images/                    # Overview figures
 ```
 
 ## 🧪 How CLSE Works
