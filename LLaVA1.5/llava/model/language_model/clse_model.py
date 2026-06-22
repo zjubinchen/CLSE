@@ -23,16 +23,14 @@ class CLSELlamaModel(LlamaModel):
 
     def __init__(self, config: LlamaConfig):
         super().__init__(config)
-        self.last_attention = None       # attention map cached from the layer before pruning
-        self.Z_L = None                  # reference features cached at each L in L_list
-        self.cutoff = 0.1                # high-pass cutoff ratio for the Gaussian spectral filter
-        self.temp = 0.1                  # temperature for sigmoid normalization of evolution intensity
+        self.last_attention = None        # attention map cached from the layer before pruning
+        self.Z_L = None                   # reference features cached at each L in L_list
         self.prune = False                # whether to enable visual token pruning
-        self.keep_tokens = [576,576,576]         # number of visual tokens to retain at each pruning stage
-        self.L_list = [0,10,20]             # layer indices at which reference features are recorded
-        self.K_list = [1,11,21]                # layer indices at which pruning is applied
-        self.image_grid_thw = (1, 24, 24)  # visual grid shape (T, H, W); T=1 for image, T>1 for video
-        self.score_type = "clse_attn"         # scoring method: "attn", "clse", or "clse_attn"
+        self.retain_token = int(os.getenv("RETAIN_TOKEN", "576"))         
+        self.L_list = [0]                 # layer indices at which reference features are recorded
+        self.K_list = [1,11,21]           # layer indices at which pruning is applied
+        self.image_grid_thw = (1, 24, 24) # visual grid shape (T, H, W); T=1 for image, T>1 for video
+        self.score_type = "clse_attn"     # scoring method: "attn", "clse", or "clse_attn"
 
     def forward(
         self,
@@ -108,6 +106,16 @@ class CLSELlamaModel(LlamaModel):
         current_image_end = 611  # image_start + 576
         has_visual = hidden_states.shape[1] >= current_image_end
 
+        token_list_192 = [330, 210, 62]  # (330*10 + 210*10 +62*12)/32 = 192  
+        token_list_128 = [220, 140, 41]
+        token_list_64 = [110, 70, 20] 
+        token_dict = {
+            192: token_list_192,
+            128: token_list_128,
+            64 : token_list_64
+        }
+        self.keep_tokens = token_dict[self.retain_token] if self.retain_token in token_dict else [self.retain_token*r for r in [1.72,1.09,0.32]]
+
         for decoder_layer in self.layers:
             current_layer_idx = decoder_layer.self_attn.layer_idx
 
@@ -132,15 +140,14 @@ class CLSELlamaModel(LlamaModel):
                     image_attention_score = None
 
                 # compute per-token importance score
-                self.image_grid_thw = (1,24,24) if current_layer_idx == self.K_list[0] else None
+                if current_layer_idx != self.K_list[0]:
+                    self.score_type = "attn" 
                 
                 evolution_score = calculate_evolution_score(
                     self.Z_L,
                     hidden_states[:, image_start:current_image_end, :],
                     image_attention_score,
                     image_grid_thw=self.image_grid_thw,
-                    cutoff=self.cutoff,
-                    temp=self.temp,
                     score_type=self.score_type
                 )
 

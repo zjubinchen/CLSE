@@ -47,8 +47,7 @@ def get_evolution_factor(s_L, s_Lk, temp=0.1, epsilon=1e-6):
     return torch.sigmoid(norm_rate / temp)
 
 
-def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(1, 24, 24),
-                               cutoff=0.1, temp=0.1, score_type="clse_attn"):
+def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(1, 24, 24),score_type="clse_attn"):
     """
     Compute token importance scores for visual token pruning.
 
@@ -57,8 +56,6 @@ def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(1, 2
         z_Lk:              image token features at layer L+k, [B, N_img, C]
         attention_weights: text-to-image attention from the last text token
         image_grid_thw:    visual grid shape (T, H, W); T=1 for images
-        cutoff:            spectral high-pass cutoff ratio
-        temp:              normalization temperature
         score_type:        "attn" | "clse" | "clse_attn"
 
     Returns:
@@ -77,9 +74,9 @@ def calculate_evolution_score(z_L, z_Lk, attention_weights, image_grid_thw=(1, 2
 
 
     t, h, w = image_grid_thw
-    score_L  = spatial_spectral_score_2d(z_L,  t, h, w, cutoff_ratio=cutoff)
-    score_Lk = spatial_spectral_score_2d(z_Lk, t, h, w, cutoff_ratio=cutoff)
-    evo_factor = get_evolution_factor(score_L, score_Lk, temp=temp)
+    score_L  = spatial_spectral_score_2d(z_L,  t, h, w)
+    score_Lk = spatial_spectral_score_2d(z_Lk, t, h, w)
+    evo_factor = get_evolution_factor(score_L, score_Lk)
 
     if score_type == "clse_attn":
         return evo_factor * attn_score

@@ -98,17 +98,7 @@ class Llava(lmms):
             llava_model_args.pop("multimodal", None)
             self._tokenizer, self._model, self._image_processor, self._max_length = load_pretrained_model(pretrained, None, model_name, device_map=self.device_map, **llava_model_args)
         
-        if kwargs.get("prune", False):
-            self._model.model.prune = True
-            self._model.model.cutoff = kwargs.get("cutoff", 0.1)
-            self._model.model.temp = kwargs.get("temp", 0.1)
-            self._model.model.score_type = kwargs.get("score_type", "attn")
-            import json
-            self._model.model.keep_tokens = json.loads(kwargs.get("kp", "[576,576,576]"))
-            self._model.model.L_list = json.loads(kwargs.get("l_list","[0,10,20]"))
-            self._model.model.K_list = json.loads(kwargs.get("k_list","[1,11,21]"))
-        else:
-            self._model.model.prune=False
+        self._model.model.prune = kwargs.get("prune", False)
 
         # Resolution-sweep overrides (for rebuttal R3-Q2). Accepts a Python literal
         # such as image_grid_pinpoints=[[336,336]] in --model_args; lmms-eval's
