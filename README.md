@@ -163,7 +163,6 @@ CLSE/
 │   ├── tools.py                   # Spectral scoring utilities
 │   ├── transformers-4.57.6/       # Patched transformers
 │   └── eval_scripts/              # Evaluation scripts
-├── transformers-4.37.2/       # Shared patched transformers
 ├── lmms-eval/                 # Evaluation framework (modified for CLSE)
 └── images/                    # Overview figures
 ```
