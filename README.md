@@ -39,7 +39,7 @@
 <img src='images/overview.png' alt='CLSE Overview' width='1000px'>
 </p>
 
-> **TLDR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 88.9% token reduction** while maintaining **94.8%–99.4%** of original performance, and is compatible with both image and video MLLMs.
+> **TLDR:** We propose CLSE (**C**ross-**L**ayer **S**pectral **E**volution), a training-free token pruning method for MLLMs that quantifies how visual token representations evolve across Transformer layers in the frequency domain. Tokens with stronger spectral redistribution from high-frequency details to low-frequency semantics are preserved. CLSE achieves **up to 66.7% token reduction** while maintaining **99.4%** of original performance, and is compatible with both image and video MLLMs.
 
 
 ## 🛠 Installation
@@ -115,7 +115,7 @@ git checkout video
 RETAIN_TOKEN=194 PRUNE=True bash run_qa_activitynet.sh  
 RETAIN_TOKEN=194 PRUNE=True bash run_qa_msvd.sh         
 RETAIN_TOKEN=194 PRUNE=True bash srun_qa_msrvtt.sh       
-RETAIN_TOKEN=194 PRUNE=True bash run_qa_tgif.sh         
+RETAIN_TOKEN=194 PRUNE=True bash run_qa_tgif.sh     
 ```
 
 ## 📊 Key Results
@@ -140,48 +140,12 @@ CLSE and CLSE-M achieve the **highest accuracy** among all training-free methods
 
 | | Prefill Time ↓ | FLOPs ↓ | KV Cache ↓ | Throughput ↑ |
 |---|---|---|---|---|
-| LLaVA-1.5 (192 tok) | **2.2× faster** | **3.0× lower** | **3.0× smaller** | **1.7× higher** |
-| Video-LLaVA (194 tok) | **10.6× faster** | **10.6× lower** | **10.6× smaller** | **8.3× higher** |
+| LLaVA-1.5 (192 tok) | **1.51× faster** | **2.28× lower** | **5.59× smaller** | **1.44× higher** |
+| Video-LLaVA (194 tok) | **2.73× faster** | **9.35× lower** | **8.70× smaller** | **2.28× higher** |
 
 ## 📁 Repository Structure
 
-> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`, `lmms-eval`) are present on both branches.
-
-### `main` branch — Image MLLMs
-
-```
-CLSE/
-├── LLaVA1.5/                  # CLSE integration for LLaVA-1.5 & LLaVA-Next
-│   ├── llava/model/language_model/
-│   │   ├── clse_model.py          # CLSELlamaModel with pruning logic
-│   │   ├── tools.py               # Spectral scoring utilities (FFT, evolution)
-│   │   └── llava_llama.py         # Modified to inherit CLSELlamaModel
-│   ├── transformers-4.37.2/       # Patched transformers (shared)
-│   └── scripts/v1_5/eval/         # Evaluation scripts
-├── Qwen2VL/                   # CLSE integration for Qwen2-VL
-│   ├── modeling_qwen2_vl_clse.py  # CLSE-augmented Qwen2-VL model
-│   ├── tools.py                   # Spectral scoring utilities
-│   ├── transformers-4.57.6/       # Patched transformers
-│   └── eval_scripts/              # Evaluation scripts
-├── lmms-eval/                 # Evaluation framework (modified for CLSE)
-└── images/                    # Overview figures
-```
-
-### `video` branch — Video MLLM
-
-```
-CLSE/
-├── videollava/                # CLSE integration for Video-LLaVA
-│   └── model/language_model/
-│       ├── clse_model.py          # CLSE model for video
-│       └── tools.py               # Video-compatible spectral scoring
-├── scripts/                   # Training & evaluation scripts
-│   └── v1_5/eval/                 # Video QA & benchmark scripts
-├── transformers-4.37.2/       # Shared patched transformers
-├── lmms-eval/                 # Evaluation framework
-├── pyproject.toml
-└── images/                    # Overview figures
-```
+> This repository uses a **branch-based** layout: `main` for image MLLMs (LLaVA, Qwen2-VL) and `video` for Video-LLaVA. Shared modules (`transformers-4.37.2`) are present on both branches.
 
 ## 🔑 License
 
