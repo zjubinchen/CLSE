@@ -1,3 +1,4 @@
+
 <div align="center">
   <h1>CLSE: Cross-Layer Spectral Evolution for Token Pruning<br>in Multimodal Large Language Models</h1>
   <h3>🔥 Accepted at ECCV 2026</h3>
@@ -76,8 +77,8 @@ git checkout video                     # switch to video branch
 
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
-pip install -e transformers-4.37.2 -e .
-pip install opencv-python,openai,decord,pytorchvideo
+pip install -e transformers-4.37.2 -e pytorchvideo -e .
+pip install opencv-python,openai,decord
 pip install "numpy<2.0.0"
 ```
 
@@ -110,10 +111,10 @@ RETAIN_RATIO=0.112 PRUNE=True bash qwen2vl_lmms_eval.sh
 ```bash
 git checkout video
 # Evaluate with CLSE token pruning (video)
-RETAIN_TOKEN=194 PRUNE=True bash run_qa_activitynet.sh  
-RETAIN_TOKEN=194 PRUNE=True bash run_qa_msvd.sh         
-RETAIN_TOKEN=194 PRUNE=True bash srun_qa_msrvtt.sh       
-RETAIN_TOKEN=194 PRUNE=True bash run_qa_tgif.sh     
+RETAIN_TOKEN=194 PRUNE=True bash activitynet_eval.sh  
+RETAIN_TOKEN=194 PRUNE=True bash msvd_eval.sh         
+RETAIN_TOKEN=194 PRUNE=True bash msrvtt_eval.sh       
+RETAIN_TOKEN=194 PRUNE=True bash tgif_eval.sh     
 ```
 
 ## 📊 Key Results
