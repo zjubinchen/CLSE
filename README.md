@@ -78,7 +78,7 @@ git checkout video                     # switch to video branch
 conda create -n clse_video python=3.10 -y
 conda activate clse_video
 pip install -e transformers-4.37.2 -e pytorchvideo -e .
-pip install opencv-python,openai,decord
+pip install opencv-python openai decord
 pip install "numpy<2.0.0"
 ```
 
