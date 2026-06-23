@@ -170,4 +170,4 @@ We extend our gratitude to the open-source efforts of [LLaVA](https://github.com
 
 ## 📩 Contact
 
-For questions about the paper or code, please email `caiyuxiang@zju.edu.cn` or `zhi.chen@unisq.edu.au`, or open an issue on GitHub.
+For questions about the paper or code, please email `22451332@zju.edu.cn`, or open an issue on GitHub.
