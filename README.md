@@ -25,7 +25,7 @@
 <div align="center">
 
 [![ECCV 2026](https://img.shields.io/badge/ECCV-2026-blue.svg)]()
-[![arXiv](https://img.shields.io/badge/Arxiv-coming_soon-AD1C18.svg?logo=arXiv)]()
+[![arXiv](https://img.shields.io/badge/arXiv-2606.24165-B31B1B.svg?logo=arXiv)](https://arxiv.org/abs/2606.24165)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/zjubinchen/CLSE?style=social)](https://github.com/zjubinchen/CLSE/stargazers)
 </div>
